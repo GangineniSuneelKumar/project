@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Diet Planner</title>
+    <link rel="stylesheet" href="https-cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/themes/light.css" />
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.24.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <h1>AI Diet Planner</h1>
+            <div class="header-buttons">
+                <button id="clear-chat-btn" aria-label="Clear Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                </button>
+                <button id="settings-btn" aria-label="Open Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                        <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59-1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main id="chat-history"></main>
+
+        <footer>
+            <form id="prompt-form">
+                <input type="text" id="prompt-input" placeholder="Ask for a diet plan..." autocomplete="off">
+                <button type="submit" id="send-btn" aria-label="Send Message">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <dialog id="preferences-modal">
+        <form id="preferences-form">
+            <h2>Health Profile</h2>
+            <p>Provide your details so the AI can create a personalized diet plan.</p>
+            
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="1" required>
+            
+            <label for="height">Height (cm)</label>
+            <input type="number" id="height" name="height" min="1" required>
+
+            <label for="weight">Weight (kg)</label>
+            <input type="number" id="weight" name="weight" min="1" required>
+
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+
+            <label for="activity-level">Activity Level</label>
+            <select id="activity-level" name="activity-level" required>
+                <option value="sedentary">Sedentary (little or no exercise)</option>
+                <option value="lightly_active">Lightly active (light exercise/sports 1-3 days/week)</option>
+                <option value="moderately_active">Moderately active (moderate exercise/sports 3-5 days/week)</option>
+                <option value="very_active">Very active (hard exercise/sports 6-7 days a week)</option>
+                <option value="extra_active">Extra active (very hard exercise/sports & physical job)</option>
+            </select>
+
+            <label for="dietary-restrictions">Dietary Restrictions</label>
+            <select id="dietary-restrictions" name="dietary-restrictions">
+                <option value="none">None</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">Vegan</option>
+                <option value="pescatarian">Pescatarian</option>
+                <option value="gluten-free">Gluten-Free</option>
+                <option value="keto">Keto</option>
+            </select>
+            
+            <label for="allergies">Allergies (comma-separated)</label>
+            <input type="text" id="allergies" name="allergies" placeholder="e.g., peanuts, shellfish">
+            
+            <label for="health-goals">Health Goals</label>
+            <textarea id="health-goals" name="health-goals" rows="3" placeholder="e.g., lose weight, build muscle, maintain current weight"></textarea>
+
+            <div class="modal-buttons">
+                <button type="button" id="close-modal-btn">Cancel</button>
+                <button type="submit" id="save-prefs-btn">Save</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
